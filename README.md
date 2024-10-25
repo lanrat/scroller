@@ -1,4 +1,4 @@
-# Message Scroller
+# [Message Scroller](https://lanrat.github.io/scroller/)
 
 A simple webapp to scroll messages on a screen
 
