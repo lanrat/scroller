@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Scroller</title>
+    <style>
+        :root {
+            --background-color: #f3f4f6;
+            --text-color: #374151;
+            --border-color: #d1d5db;
+            --input-background: #ffffff;
+            --button-background: #3b82f6;
+            --button-hover: #2563eb;
+            --input-text: #000000;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #1f2937;
+                --text-color: #e5e7eb;
+                --border-color: #4b5563;
+                --input-background: #374151;
+                --button-background: #3b82f6;
+                --button-hover: #60a5fa;
+                --input-text: #ffffff;
+            }
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            background-color: var(--input-background);
+            color: var(--input-text);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem top 50%;
+            background-size: 0.65rem auto;
+            padding-right: 2rem;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            select {
+                background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            }
+        }
+
+        select option {
+            padding: 8px;
+            font-size: 1rem;
+        }
+
+        #fontSelect option[value="Arial, sans-serif"] { font-family: Arial, sans-serif; }
+        #fontSelect option[value="'Times New Roman', serif"] { font-family: 'Times New Roman', serif; }
+        #fontSelect option[value="'Courier New', monospace"] { font-family: 'Courier New', monospace; }
+        #fontSelect option[value="Georgia, serif"] { font-family: Georgia, serif; }
+        #fontSelect option[value="Verdana, sans-serif"] { font-family: Verdana, sans-serif; }
+        #fontSelect option[value="'Trebuchet MS', sans-serif"] { font-family: 'Trebuchet MS', sans-serif; }
+        #fontSelect option[value="Impact, sans-serif"] { font-family: Impact, sans-serif; }
+        #fontSelect option[value="'Arial Black', sans-serif"] { font-family: 'Arial Black', sans-serif; }
+        #fontSelect option[value="'Palatino Linotype', serif"] { font-family: 'Palatino Linotype', serif; }
+        #fontSelect option[value="'Lucida Console', monospace"] { font-family: 'Lucida Console', monospace; }
+
+
+        input[type="text"]::placeholder {
+            color: #9ca3af;
+        }
+
+        .color-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .color-picker input[type="color"] {
+            width: 50px;
+            height: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            background-color: var(--input-background);
+            cursor: pointer;
+        }
+
+        .speed-control {
+            margin-bottom: 1rem;
+        }
+
+        .speed-control input[type="range"] {
+            width: 100%;
+            accent-color: var(--button-background);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--button-background);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        .fullscreen-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .scrolling-text-container {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .scrolling-text {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+            white-space: nowrap;
+            transform: translateX(100%);
+            animation: scroll linear infinite;
+        }
+
+        @keyframes scroll {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="textForm">
+            <div class="form-group">
+                <label for="textInput">Enter your text</label>
+                <input 
+                    type="text" 
+                    id="textInput" 
+                    placeholder="Type something..."
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="fontSelect">Select Font</label>
+                <select id="fontSelect">
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Times New Roman', serif">Times New Roman</option>
+                    <option value="'Courier New', monospace">Courier New</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="Verdana, sans-serif">Verdana</option>
+                    <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    <option value="Impact, sans-serif">Impact</option>
+                    <option value="'Arial Black', sans-serif">Arial Black</option>
+                    <option value="'Palatino Linotype', serif">Palatino</option>
+                    <option value="'Lucida Console', monospace">Lucida Console</option>
+                </select>
+            </div>
+            
+            <div class="color-inputs">
+                <div class="color-picker">
+                    <label for="textColor">Text Color:</label>
+                    <input type="color" id="textColor" value="#ffffff">
+                </div>
+                <div class="color-picker">
+                    <label for="bgColor">Background:</label>
+                    <input type="color" id="bgColor" value="#000000">
+                </div>
+            </div>
+
+            <div class="speed-control">
+                <label for="scrollSpeed">Scroll Speed:</label>
+                <input 
+                    type="range" 
+                    id="scrollSpeed" 
+                    min="1" 
+                    max="10" 
+                    value="3"
+                    step="0.5"
+                >
+                <div id="speedValue" style="text-align: center;">3 seconds</div>
+            </div>
+
+            <button type="submit">Scroll Fullscreen!</button>
+        </form>
+    </div>
+
+    <div id="fullscreenContainer" class="fullscreen-container">
+        <div class="scrolling-text-container">
+            <div id="scrollingText" class="scrolling-text"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('textForm');
+        const textInput = document.getElementById('textInput');
+        const textColor = document.getElementById('textColor');
+        const bgColor = document.getElementById('bgColor');
+        const scrollSpeed = document.getElementById('scrollSpeed');
+        const speedValue = document.getElementById('speedValue');
+        const fullscreenContainer = document.getElementById('fullscreenContainer');
+        const scrollingText = document.getElementById('scrollingText');
+        const fontSelect = document.getElementById('fontSelect');
+
+        // Update URL hash and form when text changes
+        function updateHash(text) {
+            window.location.hash = encodeURIComponent(text);
+        }
+
+        // Check for text in URL hash on page load
+        function loadFromHash() {
+            const hash = window.location.hash.slice(1); // Remove the # symbol
+            if (hash) {
+                const decodedText = decodeURIComponent(hash);
+                textInput.value = decodedText;
+            }
+        }
+
+        // Style font select options
+        function styleFontOptions() {
+            const select = document.getElementById('fontSelect');
+            for (const option of select.options) {
+                option.style.fontFamily = option.value;
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromHash();
+            styleFontOptions();
+        });
+
+        // Update hash when text changes
+        textInput.addEventListener('change', (e) => {
+            updateHash(e.target.value);
+        });
+
+        async function lockOrientation() {
+            try {
+                if (screen.orientation && screen.orientation.lock) {
+                    await screen.orientation.lock('landscape');
+                }
+            } catch (e) {
+                console.log('Orientation lock not supported');
+            }
+        }
+
+        // Update speed value display
+        scrollSpeed.addEventListener('input', function() {
+            speedValue.textContent = `${this.value} seconds`;
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const text = textInput.value.trim();
+              
+            if (text) {
+                // Update URL hash
+                updateHash(text);
+
+                scrollingText.style.color = textColor.value;
+                scrollingText.style.fontFamily = fontSelect.value;
+                fullscreenContainer.style.backgroundColor = bgColor.value;
+                
+                scrollingText.style.fontSize = '80vh';
+                scrollingText.textContent = text;
+                
+                // Calculate animation duration based on text length and speed
+                const baseSpeed = parseFloat(scrollSpeed.value);
+                const textLength = text.length;
+                const duration = Math.max(baseSpeed, textLength * 0.1); // Adjust speed based on text length
+                scrollingText.style.animationDuration = `${duration}s`;
+                
+                fullscreenContainer.style.display = 'block';
+                
+                // Request fullscreen and portrait mode
+                if (document.documentElement.requestFullscreen) {
+                    await document.documentElement.requestFullscreen();
+                    await lockOrientation();
+                    
+                    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+                    const containerWidth = isPortrait ? fullscreenContainer.offsetHeight : fullscreenContainer.offsetWidth;
+                    const containerHeight = isPortrait ? fullscreenContainer.offsetWidth : fullscreenContainer.offsetHeight;
+                    
+                    scrollingText.style.fontSize = `${containerHeight * 0.8}px`;
+                    
+                    const textWidth = scrollingText.offsetWidth;
+                    const currentFontSize = parseFloat(getComputedStyle(scrollingText).fontSize);
+                    
+                    if (textWidth > containerWidth * 2) {
+                        const scaleFactor = (containerWidth * 2) / textWidth;
+                        const newFontSize = currentFontSize * scaleFactor;
+                        scrollingText.style.fontSize = `${newFontSize}px`;
+                    }
+                }
+            }
+        });
+
+        fullscreenContainer.addEventListener('click', async function() {
+            // Exit fullscreen
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+                if (screen.orientation && screen.orientation.unlock) {
+                    screen.orientation.unlock();
+                }
+            }
+            fullscreenContainer.style.display = 'none';
+        });
+
+        window.matchMedia("(orientation: portrait)").addEventListener("change", function(e) {
+            if (document.fullscreenElement) {
+                const containerWidth = e.matches ? fullscreenContainer.offsetHeight : fullscreenContainer.offsetWidth;
+                const containerHeight = e.matches ? fullscreenContainer.offsetWidth : fullscreenContainer.offsetHeight;
+                
+                scrollingText.style.fontSize = `${containerHeight * 0.8}px`;
+                
+                const textWidth = scrollingText.offsetWidth;
+                const currentFontSize = parseFloat(getComputedStyle(scrollingText).fontSize);
+                
+                if (textWidth > containerWidth * 2) {
+                    const scaleFactor = (containerWidth * 2) / textWidth;
+                    const newFontSize = currentFontSize * scaleFactor;
+                    scrollingText.style.fontSize = `${newFontSize}px`;
+                }
+            }
+        });
+
+        // Handle fullscreen change event
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement) {
+                fullscreenContainer.style.display = 'none';
+                if (screen.orientation && screen.orientation.unlock) {
+                    screen.orientation.unlock();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
